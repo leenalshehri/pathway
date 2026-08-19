@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useOptimistic } from "react";
 import { CheckCircle2, Circle, Clock } from "lucide-react";
 import { toggleTaskComplete } from "@/app/actions/task-actions";
 import { useRouter } from "next/navigation";
@@ -20,17 +20,25 @@ interface TaskActionCardProps {
 
 export function TaskActionCard({ task, goalTitle, phaseTitle, milestoneTitle, objectiveTitle }: TaskActionCardProps) {
   const [isPending, startTransition] = useTransition();
+  const [optimisticStatus, setOptimisticStatus] = useOptimistic(task.status);
   const router = useRouter();
 
   const handleToggle = () => {
+    const isCompleted = optimisticStatus === "COMPLETED";
+    const nextStatus = isCompleted ? "PENDING" : "COMPLETED";
+    
     startTransition(async () => {
-      const isCompleted = task.status === "COMPLETED";
-      await toggleTaskComplete(task.id, !isCompleted);
-      router.refresh();
+      setOptimisticStatus(nextStatus);
+      try {
+        await toggleTaskComplete(task.id, !isCompleted);
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
-  const isCompleted = task.status === "COMPLETED";
+  const isCompleted = optimisticStatus === "COMPLETED";
 
   return (
     <div 

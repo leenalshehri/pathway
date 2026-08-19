@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, useOptimistic } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { toggleObjectiveComplete } from "@/app/actions/task-actions";
 import { useRouter } from "next/navigation";
@@ -15,14 +15,21 @@ interface RoadmapObjectiveHeaderProps {
 
 export function RoadmapObjectiveHeader({ objective }: RoadmapObjectiveHeaderProps) {
   const [isPending, startTransition] = useTransition();
+  const [optimisticStatus, setOptimisticStatus] = useOptimistic(objective.status);
   const router = useRouter();
 
-  const isCompleted = objective.status === "COMPLETED";
+  const isCompleted = optimisticStatus === "COMPLETED";
 
   const handleToggle = () => {
+    const nextStatus = isCompleted ? "PENDING" : "COMPLETED";
     startTransition(async () => {
-      await toggleObjectiveComplete(objective.id, !isCompleted);
-      router.refresh();
+      setOptimisticStatus(nextStatus);
+      try {
+        await toggleObjectiveComplete(objective.id, !isCompleted);
+        router.refresh();
+      } catch (error) {
+        console.error(error);
+      }
     });
   };
 
