@@ -91,6 +91,7 @@ model Task {
   durationMins      Int             
   status            EntityStatus    @default(PENDING)
   scheduledDate     DateTime?
+  resources         Json?
 }
 
 model WeeklyReview {

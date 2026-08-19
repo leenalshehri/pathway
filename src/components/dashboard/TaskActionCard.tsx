@@ -61,6 +61,24 @@ export function TaskActionCard({ task, goalTitle, phaseTitle, milestoneTitle, ob
           }`}>
             {task.title}
           </h3>
+
+          {/* Resources section */}
+          {(task as any).resources && Array.isArray((task as any).resources) && (task as any).resources.length > 0 && (
+            <div className="mt-3 flex flex-col gap-1.5">
+              {(task as any).resources.map((res: any, idx: number) => (
+                <a 
+                  key={idx} 
+                  href={res.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()} 
+                  className="text-xs text-blue-500 hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 hover:underline inline-flex items-center gap-1"
+                >
+                  <span className="shrink-0">🔗</span> {res.title}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
         
         <div className="flex items-end justify-between mt-auto">
