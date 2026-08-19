@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Sparkles, TrendingUp, CheckCircle2 } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 
 export default async function WeeklyReviewPage(props: { params: Promise<{ reviewId: string }> }) {
   const params = await props.params;
@@ -14,7 +14,6 @@ export default async function WeeklyReviewPage(props: { params: Promise<{ review
     include: { goal: true }
   });
 
-  // Since we might not have real reviews yet in testing, we can fallback or handle 404
   if (!review) {
     return (
       <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center p-6 text-center">
@@ -46,27 +45,19 @@ export default async function WeeklyReviewPage(props: { params: Promise<{ review
           <p className="text-neutral-400 text-lg">Goal: {review.goal.clarifiedObjective}</p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="bg-neutral-900/40 border border-neutral-800 p-6 rounded-3xl space-y-4">
-            <div className="flex items-center gap-3 text-green-400 font-medium">
-              <CheckCircle2 size={20} /> Tasks Completed
-            </div>
-            <div className="text-4xl font-medium text-white">{review.completedTasksCount}</div>
-          </div>
-          <div className="bg-neutral-900/40 border border-neutral-800 p-6 rounded-3xl space-y-4">
-            <div className="flex items-center gap-3 text-blue-400 font-medium">
-              <TrendingUp size={20} /> Adherence Score
-            </div>
-            <div className="text-4xl font-medium text-white">{review.adherenceScore}%</div>
-          </div>
-        </div>
-
-        <section className="bg-neutral-900/30 border border-neutral-800 rounded-3xl p-8 space-y-6">
+        <section className="bg-neutral-900/30 border border-neutral-800 rounded-3xl p-8 space-y-4">
           <h2 className="text-xl font-medium text-white flex items-center gap-2">
-            AI Analysis
+            Summary
           </h2>
-          <div className="prose prose-invert max-w-none text-neutral-300">
-            {review.aiFeedback.split('\n').map((para, i) => (
+          <p className="text-neutral-300 leading-relaxed">{review.summary}</p>
+        </section>
+
+        <section className="bg-neutral-900/30 border border-neutral-800 rounded-3xl p-8 space-y-4">
+          <h2 className="text-xl font-medium text-white flex items-center gap-2">
+            Recommendations
+          </h2>
+          <div className="text-neutral-300 leading-relaxed space-y-2">
+            {review.recommendations.split('\n').map((para: string, i: number) => (
               <p key={i}>{para}</p>
             ))}
           </div>

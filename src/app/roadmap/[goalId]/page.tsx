@@ -63,7 +63,7 @@ export default async function RoadmapPage(props: { params: Promise<{ goalId: str
           </div>
           <div className="flex items-center gap-4">
             <ThemeToggle />
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </div>
         </div>
       </nav>

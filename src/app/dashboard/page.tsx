@@ -52,7 +52,7 @@ export default async function DashboardPage() {
       <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-6 transition-colors">
         <div className="absolute top-6 right-6 flex items-center gap-4">
           <ThemeToggle />
-          <UserButton afterSignOutUrl="/" />
+          <UserButton />
         </div>
         <div className="text-center space-y-6 max-w-md">
           <div className="w-16 h-16 bg-card rounded-full flex items-center justify-center mx-auto mb-4 border border-card-border shadow-sm">
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
               <Plus size={14} /> New Goal
             </Link>
             <ThemeToggle />
-            <UserButton afterSignOutUrl="/" />
+            <UserButton />
           </div>
         </div>
       </nav>
