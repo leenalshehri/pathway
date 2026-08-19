@@ -50,9 +50,13 @@ export async function POST(req: Request) {
       return new NextResponse("Goal ID and Clarified Objective are required", { status: 400 });
     }
 
+    const today = new Date().toISOString().split("T")[0]; // e.g. "2026-08-20"
+
     const prompt = `
       You are Pathway, an expert AI goal planner. Your task is to generate a comprehensive, realistic, and structured roadmap for the user's goal.
       
+      TODAY'S DATE IS: ${today}. All dates you generate MUST be in the FUTURE, calculated from this date. Never generate past dates.
+
       Goal: "${clarifiedObjective}"
       Time Commitment: ${dailyMinutes ? `${dailyMinutes} minutes per day` : "User hasn't specified, assume a reasonable pace"}
       Additional Constraints: ${constraints || "None provided"}
