@@ -5,6 +5,8 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, Target, CalendarDays, Clock, CheckCircle2, ChevronRight } from "lucide-react";
 import { RoadmapTaskItem } from "@/components/roadmap/RoadmapTaskItem";
+import { RoadmapPhaseHeader } from "@/components/roadmap/RoadmapPhaseHeader";
+import { RoadmapObjectiveHeader } from "@/components/roadmap/RoadmapObjectiveHeader";
 import { calculateGoalProgress, GoalWithTasks } from "@/lib/progress";
 import { ThemeToggle } from "@/components/ThemeToggle";
 
@@ -104,18 +106,7 @@ export default async function RoadmapPage(props: { params: Promise<{ goalId: str
             <div key={phase.id} className={`relative z-10 space-y-6 ${isPhaseCompleted ? 'opacity-80' : ''}`}>
               
               {/* Phase Header */}
-              <div className="flex items-center gap-6">
-                <div className="hidden md:flex flex-1 justify-end">
-                  <div className="text-sm font-medium text-blue-600 dark:text-blue-400 uppercase tracking-widest">Phase {pIdx + 1}</div>
-                </div>
-                <div className="shrink-0 w-8 h-8 rounded-full bg-white dark:bg-[#050505] border-4 border-blue-500 flex items-center justify-center z-10">
-                  {isPhaseCompleted && <CheckCircle2 size={16} className="text-blue-500" />}
-                </div>
-                <div className="flex-1">
-                  <h2 className="text-xl font-semibold text-black dark:text-white">{phase.title}</h2>
-                  <div className="md:hidden text-xs font-medium text-blue-600 dark:text-blue-400 mt-1 uppercase tracking-widest">Phase {pIdx + 1}</div>
-                </div>
-              </div>
+              <RoadmapPhaseHeader phase={phase} index={pIdx} />
 
               {/* Milestones inside Phase */}
               <div className="space-y-8 mt-8">
@@ -140,18 +131,7 @@ export default async function RoadmapPage(props: { params: Promise<{ goalId: str
                         return (
                         <div key={objective.id} className="bg-white dark:bg-neutral-900/50 border border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden transition-all shadow-sm">
                           
-                          <div className={`px-5 py-4 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between transition-colors ${isObjectiveCompleted ? 'bg-green-50 dark:bg-green-900/10' : 'bg-neutral-50 dark:bg-neutral-900/80'}`}>
-                            <div className="flex items-center gap-3">
-                              {isObjectiveCompleted ? (
-                                <CheckCircle2 size={18} className="text-green-500 shrink-0" />
-                              ) : (
-                                <div className="w-4 h-4 rounded-full border-2 border-neutral-300 dark:border-neutral-600 shrink-0"></div>
-                              )}
-                              <h4 className={`font-medium ${isObjectiveCompleted ? 'text-neutral-500 line-through' : 'text-black dark:text-white'}`}>
-                                {objective.title}
-                              </h4>
-                            </div>
-                          </div>
+                          <RoadmapObjectiveHeader objective={objective} />
 
                           <div className="divide-y divide-neutral-100 dark:divide-neutral-800/50">
                             {objective.tasks.map((task) => (

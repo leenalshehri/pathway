@@ -20,10 +20,13 @@ export default async function DashboardPage() {
       goals: {
         include: {
           phases: {
+            orderBy: { order: "asc" },
             include: {
               milestones: {
+                orderBy: { order: "asc" },
                 include: {
                   weeklyObjectives: {
+                    orderBy: { order: "asc" },
                     include: {
                       tasks: {
                         orderBy: { id: "asc" }
