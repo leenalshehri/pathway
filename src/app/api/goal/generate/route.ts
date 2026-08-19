@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { getAIModel } from "@/lib/ai-provider";
+import { searchYouTube } from "@/lib/youtube";
 
 const TaskResourceSchema = z.object({
   title: z.string().describe("Title of the resource (e.g., 'Search YouTube: Python Variables' or 'Google Search: React Hooks docs')"),
@@ -131,6 +132,34 @@ export async function POST(req: Request) {
     const parsedDate = new Date(roadmap.projected_finish_date);
     const targetDate = isNaN(parsedDate.getTime()) ? null : parsedDate;
 
+    // Enrich tasks with real YouTube links in parallel
+    const enrichedPhases = await Promise.all(
+      roadmap.phases.map(async (phase) => ({
+        ...phase,
+        milestones: await Promise.all(
+          phase.milestones.map(async (milestone) => ({
+            ...milestone,
+            weeklyObjectives: await Promise.all(
+              milestone.weeklyObjectives.map(async (wo) => ({
+                ...wo,
+                tasks: await Promise.all(
+                  wo.tasks.map(async (task) => {
+                    // Use the AI-generated resource title as the search query
+                    const query = task.resources?.[0]?.title?.replace(/^(Search YouTube:|Google Search:|YouTube:)/i, "").trim() || task.title;
+                    const ytResult = await searchYouTube(query);
+                    return {
+                      ...task,
+                      resources: [ytResult],
+                    };
+                  })
+                ),
+              }))
+            ),
+          }))
+        ),
+      }))
+    );
+
     // Save the structured data to the database
     const updatedGoal = await prisma.goal.update({
       where: { id: goalId },
@@ -138,7 +167,7 @@ export async function POST(req: Request) {
         status: "IN_PROGRESS",
         targetDate: targetDate,
         phases: {
-          create: roadmap.phases.map((phase, pIdx) => ({
+          create: enrichedPhases.map((phase, pIdx) => ({
             title: phase.title,
             order: pIdx,
             milestones: {
