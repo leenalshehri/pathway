@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum GoalStatus {
+  PLANNING
+  IN_PROGRESS
+  COMPLETED
+  PAUSED
+}
+
+enum EntityStatus {
+  PENDING
+  ACTIVE
+  COMPLETED
+  SKIPPED
+}
+
+model User {
+  id        String   @id @default(uuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  goals     Goal[]
+  createdAt DateTime @default(now())
+}
+
+model Goal {
+  id                 String     @id @default(uuid())
+  userId             String
+  user               User       @relation(fields: [userId], references: [id])
+  originalInput      String
+  clarifiedObjective String? 
+  // User Planning Constraints
+  dailyMinutes       Int?
+  currentLevel       String?
+  desiredOutcome     String?
+  constraints        String?
+  
+  status             GoalStatus @default(PLANNING)
+  targetDate         DateTime?
+  phases             Phase[]
+  reviews            WeeklyReview[]
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+}
+
+model Phase {
+  id          String         @id @default(uuid())
+  goalId      String
+  goal        Goal           @relation(fields: [goalId], references: [id])
+  title       String
+  order       Int
+  status      EntityStatus   @default(PENDING)
+  milestones  Milestone[]
+}
+
+model Milestone {
+  id               String            @id @default(uuid())
+  phaseId          String
+  phase            Phase             @relation(fields: [phaseId], references: [id])
+  title            String
+  order            Int
+  status           EntityStatus      @default(PENDING)
+  projectedDate    DateTime?
+  weeklyObjectives WeeklyObjective[]
+}
+
+model WeeklyObjective {
+  id             String       @id @default(uuid())
+  milestoneId    String
+  milestone      Milestone    @relation(fields: [milestoneId], references: [id])
+  title          String
+  order          Int
+  status         EntityStatus @default(PENDING)
+  tasks          Task[]
+}
+
+model Task {
+  id                String          @id @default(uuid())
+  weeklyObjectiveId String
+  weeklyObjective   WeeklyObjective @relation(fields: [weeklyObjectiveId], references: [id])
+  title             String
+  durationMins      Int             
+  status            EntityStatus    @default(PENDING)
+  scheduledDate     DateTime?
+}
+
+model WeeklyReview {
+  id              String   @id @default(uuid())
+  goalId          String
+  goal            Goal     @relation(fields: [goalId], references: [id])
+  weekStartDate   DateTime
+  summary         String
+  recommendations String
+}
