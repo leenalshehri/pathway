@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { UserButton } from "@clerk/nextjs";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -14,7 +14,7 @@ export default async function DashboardPage() {
   const { userId: clerkId } = await auth();
   if (!clerkId) redirect("/sign-in");
 
-  const dbUser = await prisma.user.findUnique({ 
+  let dbUser = await prisma.user.findUnique({ 
     where: { clerkId },
     include: {
       goals: {
@@ -43,7 +43,39 @@ export default async function DashboardPage() {
     }
   });
 
-  if (!dbUser) redirect("/sign-in");
+  // If the user is authenticated in Clerk but not in our DB, create them
+  if (!dbUser) {
+    const user = await currentUser();
+    if (!user) redirect("/sign-in");
+    
+    dbUser = await prisma.user.create({
+      data: {
+        clerkId: user.id,
+        email: user.emailAddresses[0]?.emailAddress ?? "",
+        name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || null,
+      },
+      // Since it's a new user, they won't have goals yet, so we can mock the include response
+      include: {
+        goals: {
+          include: {
+            phases: {
+              include: {
+                milestones: {
+                  include: {
+                    weeklyObjectives: {
+                      include: {
+                        tasks: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    });
+  }
 
   const goals = dbUser.goals;
 
