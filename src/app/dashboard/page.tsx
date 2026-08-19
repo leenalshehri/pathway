@@ -29,7 +29,7 @@ export default async function DashboardPage() {
                     orderBy: { order: "asc" },
                     include: {
                       tasks: {
-                        orderBy: { id: "asc" }
+                        orderBy: { order: "asc" }
                       }
                     }
                   }

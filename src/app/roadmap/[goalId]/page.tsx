@@ -31,7 +31,7 @@ export default async function RoadmapPage(props: { params: Promise<{ goalId: str
                 orderBy: { order: 'asc' },
                 include: {
                   tasks: {
-                    orderBy: { durationMins: 'asc' }
+                    orderBy: { order: 'asc' }
                   }
                 }
               }

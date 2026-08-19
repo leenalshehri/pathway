@@ -115,8 +115,9 @@ export async function POST(req: Request) {
                     title: wo.title,
                     order: wIdx,
                     tasks: {
-                      create: wo.tasks.map((task) => ({
+                      create: wo.tasks.map((task, tIdx) => ({
                         title: task.title,
+                        order: tIdx,
                         durationMins: task.durationMins,
                       })),
                     },

@@ -87,6 +87,7 @@ model Task {
   weeklyObjectiveId String
   weeklyObjective   WeeklyObjective @relation(fields: [weeklyObjectiveId], references: [id])
   title             String
+  order             Int             @default(0)
   durationMins      Int             
   status            EntityStatus    @default(PENDING)
   scheduledDate     DateTime?

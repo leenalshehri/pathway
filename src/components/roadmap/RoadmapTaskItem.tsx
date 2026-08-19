@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, useState } from "react";
+import { useTransition, useOptimistic } from "react";
 import { Check, Clock } from "lucide-react";
 import { toggleTaskComplete } from "@/app/actions/task-actions";
 import { useRouter } from "next/navigation";
@@ -16,21 +16,20 @@ interface RoadmapTaskItemProps {
 
 export function RoadmapTaskItem({ task }: RoadmapTaskItemProps) {
   const [isPending, startTransition] = useTransition();
-  const [optimisticStatus, setOptimisticStatus] = useState(task.status);
+  const [optimisticStatus, setOptimisticStatus] = useOptimistic(task.status);
   const router = useRouter();
 
   const handleToggle = () => {
     const isCompleted = optimisticStatus === "COMPLETED";
     const nextStatus = isCompleted ? "PENDING" : "COMPLETED";
-    setOptimisticStatus(nextStatus);
-
+    
     startTransition(async () => {
+      setOptimisticStatus(nextStatus);
       try {
         await toggleTaskComplete(task.id, !isCompleted);
         router.refresh();
       } catch (error) {
         console.error(error);
-        setOptimisticStatus(task.status);
       }
     });
   };
